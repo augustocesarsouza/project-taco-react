@@ -1,1 +1,1 @@
-export const Url = 'http://localhost:8080/v1';
+export const Url = 'https://ubiquitous-telegram-rv5qrggwrq7cp5gr-8080.app.github.dev/v1';
