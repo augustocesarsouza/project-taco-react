@@ -3,11 +3,15 @@ import * as Styled from './styled';
 import SvgArrow from '../../../SvgAll/SvgArrow/SvgArrow';
 import { Url } from '../../../../Utils/Url';
 import type { ObjUser } from '../../../InterfaceAll/IObjUser/IObjUser';
+import { apiFetch } from '../../../../Api/apiFetch';
 
 const ProfileMain = () => {
     const [birthDate, setBirthDate] = useState("");
+    const [cpf, setCpf] = useState("");
     const [showDataUser, setShowDataUser] = useState(true);
     const [userLogin, setUserLogin] = useState<ObjUser | null>(null);
+
+    const [cpfError, setCpfError] = useState(false);
 
     const [form, setForm] = useState({
         id: "",
@@ -54,8 +58,9 @@ const ProfileMain = () => {
         form["id"] = userLogin.id;
 
         form["birthDate"] = formatDateBrazil(form["birthDate"]);
+        form["cpf"] = cpf;
 
-        const resp = await fetch(`${Url}/user/update-user`, {
+        const obj = {
             method: 'PUT',
             headers: {
                 Authorization: `Bearer ${userLogin.token}`,
@@ -63,7 +68,9 @@ const ProfileMain = () => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(form)
-        });
+        }
+
+        const resp = await apiFetch(`${Url}/user/update-user`, obj);
 
         if (resp.status === 200) {
             const json = await resp.json();
@@ -72,6 +79,7 @@ const ProfileMain = () => {
 
             setShowDataUser((prev) => !prev);
             const obj = {id: data.id, email: data.email, firstName: data.name, lastName: data.lastName,  cpf: data.cpf,  gender: data.gender, cellPhone: data.telephone,  birthDate: data.dateOfBirth};
+            setCpf(data.cpf);
             setForm(obj);
         } else if (resp.status === 400) {
             const body = await resp.json();
@@ -100,13 +108,15 @@ const ProfileMain = () => {
     }, []);
 
     const getUserUpdate = async (user: ObjUser ) => {
-        const resp = await fetch(`${Url}/user/get-info-user/${user.id}`, {
+        const obj = {
             headers: {
                 Authorization: `Bearer ${user.token}`,
                 uid: user.id ?? '',
                 'Content-Type': 'application/json',
             }
-        });
+        };
+
+        const resp = await apiFetch(`${Url}/user/get-info-user/${user.id}`, obj);
 
         if (resp.status === 200) {
             const json = await resp.json();
@@ -119,6 +129,7 @@ const ProfileMain = () => {
                 cpf: data.cpf,  gender: data.gender, cellPhone: data.telephone,  birthDate: dataBR};
             
             setBirthDate(obj.birthDate);
+            setCpf(data.cpf);
             setForm(obj);
             // inserir  nos "Dados pessoais"
 
@@ -137,7 +148,60 @@ const ProfileMain = () => {
             return date;
         }
     }
-    
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+       
+        if(!isNaN(Number(event.key)) || event.key === "Backspace"){
+            setCpf((prev) => {
+                let newString = "";
+
+                if(event.key === "Backspace"){
+                    const newStringCpf = prev.slice(0, -1);
+                    let clean2 = newStringCpf.replace(/[.-]/g, "");
+
+                    if(clean2.length < 11 && clean2.length > 0){
+                        setCpfError(true);
+                    }else {
+                        setCpfError(false);
+                    }
+
+                    return newStringCpf;
+                }
+
+                let clean = prev.replace(/[.-]/g, "");
+
+                if(clean.length < 11){
+                    clean += event.key;
+                }
+                
+                if(clean.length < 11 && clean.length > 0){
+                    setCpfError(true);
+                }else {
+                    setCpfError(false);
+                }
+
+                for (let i = 0; i < clean.length; i++) {
+                    const element = clean[i];
+                    newString += element;
+
+                    if(i === 2 || i === 5){
+                        newString += ".";
+                    }
+
+                    if(i === 8){
+                        newString += "-"; 
+                    }
+                }
+
+                setForm((prev) => ({
+                    ...prev,
+                    ["cpf"]: newString
+                }));
+
+                return newString;
+            });
+        }
+    };
 
     return (
         <Styled.ContainerMain>
@@ -161,6 +225,7 @@ const ProfileMain = () => {
                                          <Styled.ContainerInfoInner>
                                             <Styled.ContainerFirstLabelAndInfo>
                                                 <label>CPF</label>
+                                                <span>{form.cpf}</span>
                                             </Styled.ContainerFirstLabelAndInfo>
                                             <Styled.ContainerFirstLabelAndInfo>
                                                 <label>Gênero</label>
@@ -210,6 +275,8 @@ const ProfileMain = () => {
                                     <Styled.Label>Primeiro Nome: *</Styled.Label>
                                     <Styled.Input
                                         name="firstName"
+                                        $nameInput='firstName'
+                                        $error={false}
                                         value={form.firstName}
                                         onChange={handleChange}
                                     />
@@ -219,6 +286,8 @@ const ProfileMain = () => {
                                     <Styled.Label>Último Nome: *</Styled.Label>
                                     <Styled.Input
                                         name="lastName"
+                                        $nameInput='lastName'
+                                        $error={false}
                                         value={form.lastName}
                                         onChange={handleChange}
                                     />
@@ -228,9 +297,16 @@ const ProfileMain = () => {
                                     <Styled.Label>CPF: *</Styled.Label>
                                     <Styled.Input
                                         name="cpf"
-                                        value={form.cpf}
+                                        $nameInput='cpf'
+                                        $error={cpfError}
+                                        value={cpf}
+                                        onKeyDown={handleKeyDown}
                                         onChange={handleChange}
                                     />
+                                    {cpfError && (
+                                        <Styled.SpanError>Valor inválido.</Styled.SpanError>
+                                    )}
+                                    
                                     </Styled.FormGroup>
 
                                     <Styled.FormGroup>
@@ -250,6 +326,8 @@ const ProfileMain = () => {
                                     <Styled.Label>Telefone: *</Styled.Label>
                                     <Styled.Input
                                         name="cellPhone"
+                                        $nameInput='cellPhone'
+                                        $error={false}
                                         value={form.cellPhone}
                                         onChange={handleChange}
                                     />
@@ -259,6 +337,8 @@ const ProfileMain = () => {
                                     <Styled.Label>Nascimento: *</Styled.Label>
                                     <Styled.Input
                                         name="birthDate"
+                                        $nameInput='birthDate'
+                                        $error={false}
                                         value={birthDate || ""}
                                         onChange={handleChange}
                                     />

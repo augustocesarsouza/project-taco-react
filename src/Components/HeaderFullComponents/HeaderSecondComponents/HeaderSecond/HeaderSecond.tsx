@@ -8,6 +8,7 @@ import { FiArrowLeft } from 'react-icons/fi';
 import { Url } from '../../../../Utils/Url';
 import { useNavigate } from 'react-router-dom';
 import type { ObjUser } from '../../../InterfaceAll/IObjUser/IObjUser';
+import { apiFetch } from '../../../../Api/apiFetch';
 
 
 const HeaderSecond = () => {
@@ -53,12 +54,11 @@ const HeaderSecond = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        const resp = await fetch(`${Url}/public/user/send-code-email-to-create-account/${email}`);
+        const resp = await apiFetch(`${Url}/public/user/send-code-email-to-create-account/${email}`);
         
          if (resp.status === 200) {
             const json = await resp.json();
             const data = await json.data;
-
 
             setOpenModalTypeCodeSendToEmail((prev) => !prev);
             setOpenModalSendCodeEmail((prev) => !prev);

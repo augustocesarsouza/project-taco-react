@@ -186,16 +186,24 @@ export const Label = styled.label`
   line-height: 1;
 `;
 
-export const Input = styled.input`
+interface InputProps {
+  $nameInput: string;
+  $error: boolean;
+}
+
+export const Input = styled.input<InputProps>`
   border: none;
   border-bottom: 2px solid #ccc;
   padding: 8px 4px;
   background: transparent;
   outline: none;
   padding-left: 15px;
+  border-color: ${props => props.$error && "red"};
 
   &:focus {
     border-bottom: 2px solid #000;
+    border-color: ${props => props.$error && "red"};
+
   }
 `;
 
@@ -228,4 +236,10 @@ export const Button = styled.button`
   &:hover {
     opacity: 0.8;
   }
+`;
+
+export const SpanError = styled.span`
+  font-size: 14px;
+  color: red;
+  margin-top: 5px;
 `;
