@@ -5,12 +5,13 @@ import { Url } from '../../../../Utils/Url';
 import type { ObjUser } from '../../../InterfaceAll/IObjUser/IObjUser';
 
 const ProfileMain = () => {
-    const [email, setEmail] = useState("augustocesarsantana90@gmail.com");
+    const [birthDate, setBirthDate] = useState("");
     const [showDataUser, setShowDataUser] = useState(true);
     const [userLogin, setUserLogin] = useState<ObjUser | null>(null);
 
     const [form, setForm] = useState({
         id: "",
+        email: "",
         firstName: "",
         lastName: "",
         cpf: "",
@@ -21,11 +22,29 @@ const ProfileMain = () => {
 
     const handleChange = (e: any) => {
         const { name, value } = e.target;
-        
-        setForm((prev) => ({
-            ...prev,
-            [name]: value
-        }));
+
+        if(name === "birthDate"){
+            let numbers = value.replace(/\D/g, "").slice(0, 8);
+
+            if (numbers.length >= 5) {
+                numbers = numbers.replace(/(\d{2})(\d{2})(\d+)/, "$1/$2/$3");
+            } else if (numbers.length >= 3) {
+                numbers = numbers.replace(/(\d{2})(\d+)/, "$1/$2");
+            }
+
+            setBirthDate(numbers);
+
+            setForm((prev) => ({
+                ...prev,
+                [name]: numbers
+            }));
+
+        }else {
+            setForm((prev) => ({
+                ...prev,
+                [name]: value
+            }));
+        }
     }
 
     const handleSubmit = async (e: any) => {
@@ -33,6 +52,8 @@ const ProfileMain = () => {
         if(userLogin === null) return;
 
         form["id"] = userLogin.id;
+
+        form["birthDate"] = formatDateBrazil(form["birthDate"]);
 
         const resp = await fetch(`${Url}/user/update-user`, {
             method: 'PUT',
@@ -49,8 +70,8 @@ const ProfileMain = () => {
             const data = json.data;
             console.log(data);
 
-            // setShowDataUser((prev) => !prev);
-            const obj = {id: "", firstName: "", lastName: "",  cpf: "",  gender: "", cellPhone: "",  birthDate: ""};
+            setShowDataUser((prev) => !prev);
+            const obj = {id: data.id, email: data.email, firstName: data.name, lastName: data.lastName,  cpf: data.cpf,  gender: data.gender, cellPhone: data.telephone,  birthDate: data.dateOfBirth};
             setForm(obj);
         } else if (resp.status === 400) {
             const body = await resp.json();
@@ -64,7 +85,7 @@ const ProfileMain = () => {
 
     const onClickBackDatePersonal = () => {
         setShowDataUser((prev) => !prev);
-        const obj = {id: "", firstName: "", lastName: "",  cpf: "",  gender: "", cellPhone: "",  birthDate: ""};
+        const obj = {id: "", email: "", firstName: "", lastName: "",  cpf: "",  gender: "", cellPhone: "",  birthDate: ""};
         setForm(obj);
     }
 
@@ -90,7 +111,15 @@ const ProfileMain = () => {
         if (resp.status === 200) {
             const json = await resp.json();
             const data = json.data;
-            console.log(data);
+
+            const [year, month, day] = data.dateOfBirth.split("-");
+            const dataBR = `${day}/${month}/${year}`;
+
+            const obj = {id: data.id, email: data.email, firstName: data.name, lastName: data.lastName,  
+                cpf: data.cpf,  gender: data.gender, cellPhone: data.telephone,  birthDate: dataBR};
+            
+            setBirthDate(obj.birthDate);
+            setForm(obj);
             // inserir  nos "Dados pessoais"
 
         } else if (resp.status === 400) {
@@ -98,6 +127,17 @@ const ProfileMain = () => {
             const data = body.data;
         }
     }
+
+    const formatDateBrazil = (date: string) => {
+        if(!date.includes("/")){
+            const [year, month, day] = date.split("-");
+            const dataBR = `${day}/${month}/${year}`;
+            return dataBR;
+        }else {
+            return date;
+        }
+    }
+    
 
     return (
         <Styled.ContainerMain>
@@ -110,31 +150,40 @@ const ProfileMain = () => {
                                         <Styled.ContainerInfoInner>
                                             <Styled.ContainerFirstLabelAndInfo>
                                                 <label>Seu nome</label>
+                                                <span>{form.firstName}</span>
                                             </Styled.ContainerFirstLabelAndInfo>
+                                            <Styled.ContainerFirstLabelAndInfo>
+                                                <label>Sobrenome</label>
+                                                <span>{form.lastName}</span>
+                                            </Styled.ContainerFirstLabelAndInfo>
+                                        </Styled.ContainerInfoInner>
+
+                                         <Styled.ContainerInfoInner>
                                             <Styled.ContainerFirstLabelAndInfo>
                                                 <label>CPF</label>
                                             </Styled.ContainerFirstLabelAndInfo>
                                             <Styled.ContainerFirstLabelAndInfo>
-                                                <label>Nascimento</label>
+                                                <label>Gênero</label>
+                                                <span>{form.gender === "M" ? "Masculino" : "Feminino"}</span>
                                             </Styled.ContainerFirstLabelAndInfo>
                                         </Styled.ContainerInfoInner>
+
                                         <Styled.ContainerInfoInner>
                                             <Styled.ContainerFirstLabelAndInfo>
-                                                <label>Seu nome</label>
-                                            </Styled.ContainerFirstLabelAndInfo>
-                                            <Styled.ContainerFirstLabelAndInfo>
-                                                <label>CPF</label>
-                                            </Styled.ContainerFirstLabelAndInfo>
-                                            <Styled.ContainerFirstLabelAndInfo>
                                                 <label>Nascimento</label>
+                                                <span>{form.birthDate}</span>
+                                            </Styled.ContainerFirstLabelAndInfo>
+                                            <Styled.ContainerFirstLabelAndInfo>
+                                                <label>Telefone</label>
                                             </Styled.ContainerFirstLabelAndInfo>
                                         </Styled.ContainerInfoInner>
-                                    </Styled.ContainerFirstInfos>
-                                    <Styled.ContainerSecondInfos>
-                                        <label>Email</label>
-                                        <span>{email}</span>
-                                    </Styled.ContainerSecondInfos>
 
+                                        <Styled.ContainerSecondInfos>
+                                            <label>Email</label>
+                                            <span>{form.email}</span>
+                                        </Styled.ContainerSecondInfos>
+                                    </Styled.ContainerFirstInfos>
+                                    
                                     <Styled.ButtonChangeData onClick={onClickChangeDate}>Alterar dados pessoais</Styled.ButtonChangeData>
                                 </Styled.ContainerSecondMain>
 
@@ -209,9 +258,8 @@ const ProfileMain = () => {
                                     <Styled.FormGroup>
                                     <Styled.Label>Nascimento: *</Styled.Label>
                                     <Styled.Input
-                                        type="date"
                                         name="birthDate"
-                                        value={form.birthDate}
+                                        value={birthDate || ""}
                                         onChange={handleChange}
                                     />
                                 </Styled.FormGroup>

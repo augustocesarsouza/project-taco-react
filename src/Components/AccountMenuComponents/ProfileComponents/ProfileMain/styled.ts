@@ -29,13 +29,19 @@ export const ContainerSecondMain = styled.div`
 `;
 
 export const ContainerFirstInfos = styled.div`
-  display: flex;
+  display: grid;
+  // grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  // margin-bottom: 10px;
 `;
 
 export const ContainerInfoInner = styled.div`
-  display: flex;
-  flex-direction: column;
+  // display: flex;
   width: 100%;
+  // margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* sempre 2 colunas */
+  gap: 20px;
 
   >label {
     font-size: 16px;
@@ -44,12 +50,19 @@ export const ContainerInfoInner = styled.div`
 `;
 
 export const ContainerFirstLabelAndInfo = styled.div`
+  display: flex;
+  flex-direction: column;
   line-height: 1;
-  margin-bottom: 35px;
+  // margin-bottom: 35px;
 
   >label {
     font-size: 16px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+  }
+
+  >span {
+    font-weight: 500;
+    font-size: 17px;
   }
 `;
 
