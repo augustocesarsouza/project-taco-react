@@ -1,5 +1,4 @@
-import styled from 'styled-components';
-
+import styled, { keyframes } from "styled-components";
 
 export const ContainerMain = styled.div`
   width: 100%;
@@ -232,6 +231,11 @@ export const Button = styled.button`
   border: none;
   padding: 10px 20px;
   cursor: pointer;
+  width: 140px;
+  height: 37px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
     opacity: 0.8;
@@ -242,4 +246,22 @@ export const SpanError = styled.span`
   font-size: 14px;
   color: red;
   margin-top: 5px;
+`;
+
+const spin = keyframes`
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+`;
+
+export const LoadingSpinner = styled.div`
+  width: 15px;
+  height: 15px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: ${spin} 1s linear infinite;
 `;

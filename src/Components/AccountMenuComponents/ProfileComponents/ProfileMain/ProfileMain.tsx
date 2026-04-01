@@ -10,6 +10,7 @@ const ProfileMain = () => {
     const [cpf, setCpf] = useState("");
     const [showDataUser, setShowDataUser] = useState(true);
     const [userLogin, setUserLogin] = useState<ObjUser | null>(null);
+    const [loadInfoUser, setLoadInfoUser] = useState(false);
 
     const [cpfError, setCpfError] = useState(false);
 
@@ -23,6 +24,31 @@ const ProfileMain = () => {
         cellPhone: "",
         birthDate: ""
     });
+    
+    const formatarTelefone = (value: string) => {
+        // 1. Remove tudo que não é número
+        const apenasNumeros = value.replace(/\D/g, '');
+        console.log(apenasNumeros);
+        // 2. Aplica a máscara (XX) XXXXX-XXXX ou (XX) XXXX-XXXX
+        return apenasNumeros
+        .replace(/^(\d{2})(\d)/g, '($1) $2') // Coloca parênteses no DDD
+        .replace(/(\d{5})(\d{4})/, '$1-$2')  // Coloca hífen no número
+        .slice(0, 15); // Limita o tamanho máximo
+    };
+
+    const [itWasTypeAtLeastOneTimeInCellPhone, setItWasTypeAtLeastOneTimeInCellPhone] = useState(false);
+
+    const handleChangeTwo = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // setTelefone(formatarTelefone(e.target.value));
+
+        setItWasTypeAtLeastOneTimeInCellPhone(true);
+        setForm((prev) => (
+            {
+                ...prev,
+                ["cellPhone"]: formatarTelefone(e.target.value)
+            }
+        ))
+    };
 
     const handleChange = (e: any) => {
         const { name, value } = e.target;
@@ -51,6 +77,9 @@ const ProfileMain = () => {
         }
     }
 
+    const [resultValidateFields, setResultValidateFields] = useState(false);
+    const [showLoadInfoUser, setShowLoadInfoUser] = useState(false);
+
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         if(userLogin === null) return;
@@ -59,7 +88,19 @@ const ProfileMain = () => {
 
         form["birthDate"] = formatDateBrazil(form["birthDate"]);
         form["cpf"] = cpf;
+        setShowLoadInfoUser(true);
 
+        const resultValidate = validateIfAnyFieldIsInvalid();
+        setResultValidateFields(resultValidate);
+
+        if(resultValidate){
+            setTimeout(() => {
+                setShowLoadInfoUser(false);
+            }, 500);
+            
+            return;
+        }
+            
         const obj = {
             method: 'PUT',
             headers: {
@@ -76,7 +117,7 @@ const ProfileMain = () => {
             const json = await resp.json();
             const data = json.data;
             console.log(data);
-
+            setShowLoadInfoUser(false);
             setShowDataUser((prev) => !prev);
             const obj = {id: data.id, email: data.email, firstName: data.name, lastName: data.lastName,  cpf: data.cpf,  gender: data.gender, cellPhone: data.telephone,  birthDate: data.dateOfBirth};
             setCpf(data.cpf);
@@ -85,6 +126,19 @@ const ProfileMain = () => {
             const body = await resp.json();
             const data = body.data;
         }
+    }
+
+    const validateIfAnyFieldIsInvalid = () => {
+
+        if(cpfError){
+            return true;
+        }
+
+        if(form.cellPhone.length < 15){
+            return true;
+        }
+
+        return false;
     }
 
     const onClickChangeDate = () => {
@@ -131,6 +185,7 @@ const ProfileMain = () => {
             setBirthDate(obj.birthDate);
             setCpf(data.cpf);
             setForm(obj);
+            setLoadInfoUser(true);
             // inserir  nos "Dados pessoais"
 
         } else if (resp.status === 400) {
@@ -214,38 +269,53 @@ const ProfileMain = () => {
                                         <Styled.ContainerInfoInner>
                                             <Styled.ContainerFirstLabelAndInfo>
                                                 <label>Seu nome</label>
-                                                <span>{form.firstName}</span>
+                                                {loadInfoUser && (
+                                                    <span>{form.firstName}</span>
+                                                )}
                                             </Styled.ContainerFirstLabelAndInfo>
                                             <Styled.ContainerFirstLabelAndInfo>
                                                 <label>Sobrenome</label>
-                                                <span>{form.lastName}</span>
+                                                {loadInfoUser && (
+                                                    <span>{form.lastName}</span>
+                                                )}
                                             </Styled.ContainerFirstLabelAndInfo>
                                         </Styled.ContainerInfoInner>
 
                                          <Styled.ContainerInfoInner>
                                             <Styled.ContainerFirstLabelAndInfo>
                                                 <label>CPF</label>
-                                                <span>{form.cpf}</span>
+                                                {loadInfoUser && (
+                                                    <span>{form.cpf}</span>
+                                                )}
                                             </Styled.ContainerFirstLabelAndInfo>
                                             <Styled.ContainerFirstLabelAndInfo>
                                                 <label>Gênero</label>
-                                                <span>{form.gender === "M" ? "Masculino" : "Feminino"}</span>
+                                                {loadInfoUser && (
+                                                    <span>{form.gender === "M" ? "Masculino" : "Feminino"}</span>
+                                                )}
                                             </Styled.ContainerFirstLabelAndInfo>
                                         </Styled.ContainerInfoInner>
 
                                         <Styled.ContainerInfoInner>
                                             <Styled.ContainerFirstLabelAndInfo>
                                                 <label>Nascimento</label>
-                                                <span>{form.birthDate}</span>
+                                                {loadInfoUser && (
+                                                    <span>{form.birthDate}</span>
+                                                )}
                                             </Styled.ContainerFirstLabelAndInfo>
                                             <Styled.ContainerFirstLabelAndInfo>
                                                 <label>Telefone</label>
+                                                {loadInfoUser && (
+                                                    <span>{form.cellPhone}</span>
+                                                )}
                                             </Styled.ContainerFirstLabelAndInfo>
                                         </Styled.ContainerInfoInner>
 
                                         <Styled.ContainerSecondInfos>
                                             <label>Email</label>
-                                            <span>{form.email}</span>
+                                            {loadInfoUser && (
+                                                <span>{form.email}</span>
+                                            )} 
                                         </Styled.ContainerSecondInfos>
                                     </Styled.ContainerFirstInfos>
                                     
@@ -294,18 +364,18 @@ const ProfileMain = () => {
                                     </Styled.FormGroup>
 
                                     <Styled.FormGroup>
-                                    <Styled.Label>CPF: *</Styled.Label>
-                                    <Styled.Input
-                                        name="cpf"
-                                        $nameInput='cpf'
-                                        $error={cpfError}
-                                        value={cpf}
-                                        onKeyDown={handleKeyDown}
-                                        onChange={handleChange}
-                                    />
-                                    {cpfError && (
-                                        <Styled.SpanError>Valor inválido.</Styled.SpanError>
-                                    )}
+                                        <Styled.Label>CPF: *</Styled.Label>
+                                        <Styled.Input
+                                            name="cpf"
+                                            $nameInput='cpf'
+                                            $error={cpfError}
+                                            value={cpf}
+                                            onKeyDown={handleKeyDown}
+                                            onChange={handleChange}
+                                        />
+                                        {cpfError && (
+                                            <Styled.SpanError>Valor inválido.</Styled.SpanError>
+                                        )}
                                     
                                     </Styled.FormGroup>
 
@@ -323,14 +393,19 @@ const ProfileMain = () => {
                                     </Styled.FormGroup>
 
                                     <Styled.FormGroup>
-                                    <Styled.Label>Telefone: *</Styled.Label>
-                                    <Styled.Input
-                                        name="cellPhone"
-                                        $nameInput='cellPhone'
-                                        $error={false}
-                                        value={form.cellPhone}
-                                        onChange={handleChange}
-                                    />
+                                        <Styled.Label>Telefone: *</Styled.Label>
+                                        <Styled.Input
+                                            name="cellPhone"
+                                            $nameInput='cellPhone'
+                                            $error={false}
+                                            value={form.cellPhone}
+                                            onChange={handleChangeTwo}
+                                            placeholder="(00) 00000-0000"
+                                        />
+
+                                        {itWasTypeAtLeastOneTimeInCellPhone && form.cellPhone.length < 15 && (
+                                            <Styled.SpanError>Valor inválido.</Styled.SpanError>
+                                        )}
                                     </Styled.FormGroup>
 
                                     <Styled.FormGroup>
@@ -346,7 +421,18 @@ const ProfileMain = () => {
 
                                 <Styled.Footer>
                                     <Styled.Link>Incluir dados de Pessoa Jurídica</Styled.Link>
-                                    <Styled.Button type="submit" onClick={handleSubmit}>Salvar mudanças</Styled.Button>
+                                    <Styled.Button type="submit" onClick={handleSubmit}>
+                                        {!showLoadInfoUser && (
+                                            <>
+                                                Salvar mudanças
+                                            </>
+                                        )}
+
+                                        {showLoadInfoUser && (
+                                            <Styled.LoadingSpinner />
+                                        )}
+                                        </Styled.Button>
+                                   
                                 </Styled.Footer>
                             </Styled.ContainerInnerFormFull>
                         </Styled.ContainerFormFull>
