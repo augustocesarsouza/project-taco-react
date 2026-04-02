@@ -7,13 +7,14 @@ export const ContainerMain = styled.div`
 
 export const Layout = styled.div`
   display: flex;
+  gap: 64px;
   background: #f5f5f5;
   padding: 72px 104px 102px;
 `;
 
 export const Sidebar = styled.div`
   /* width: 270px; */
-  width: 30%;
+  width: 220px;
   min-height: 100vh;
   
   /* padding: 30px 20px; */
@@ -35,6 +36,11 @@ export const UserBoxSvg = styled.div`
     width: 100%;
     height: 100%;
   }
+`;
+
+export const SpanHighlight = styled.span`
+  font-size: 17px;
+  font-weight: 500;
 `;
 
 export const Avatar = styled.div`

@@ -1,7 +1,7 @@
 import styled, { keyframes } from "styled-components";
 
 export const ContainerMain = styled.div`
-  width: 100%;
+  width: 80%;
   
   >h1 {
     font-size: 28px;
@@ -264,4 +264,5 @@ export const LoadingSpinner = styled.div`
   border-top: 3px solid #3498db;
   border-radius: 50%;
   animation: ${spin} 1s linear infinite;
+
 `;

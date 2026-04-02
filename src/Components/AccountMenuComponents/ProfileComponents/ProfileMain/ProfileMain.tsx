@@ -25,6 +25,7 @@ const ProfileMain = () => {
         birthDate: ""
     });
     
+    
     const formatarTelefone = (value: string) => {
         // 1. Remove tudo que não é número
         const apenasNumeros = value.replace(/\D/g, '');
@@ -127,7 +128,7 @@ const ProfileMain = () => {
             const data = body.data;
         }
     }
-
+    
     const validateIfAnyFieldIsInvalid = () => {
 
         if(cpfError){

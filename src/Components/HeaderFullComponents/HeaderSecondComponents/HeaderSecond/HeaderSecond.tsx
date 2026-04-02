@@ -194,7 +194,7 @@ const HeaderSecond = () => {
         const userString = localStorage.getItem("userLogin");
         if(userString){
             const user = JSON.parse(userString);
-            
+
             setUserLogin(user);
         }
         
@@ -266,7 +266,7 @@ const HeaderSecond = () => {
                             {clickUserLogged && (
                                 <Styled.ContainerUserCircleModal>
                                     <Styled.ContainerSpanUserCircle $index={0}>
-                                        <Styled.SpanMain>Olá, </Styled.SpanMain>
+                                        <Styled.SpanMain>Olá, <Styled.SpanHighlight>{userLogin.name}</Styled.SpanHighlight></Styled.SpanMain>
                                         <FaExclamation />
                                     </Styled.ContainerSpanUserCircle>
                                     <Styled.ContainerSpanUserCircle $index={0} onClick={onClickProfile}>

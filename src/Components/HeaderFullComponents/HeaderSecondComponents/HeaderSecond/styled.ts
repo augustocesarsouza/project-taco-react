@@ -64,6 +64,11 @@ export const Span = styled.span<SpanProps>`
 export const SpanMain = styled.span`
 `;
 
+export const SpanHighlight = styled.span`
+  font-size: 17px;
+  font-weight: 500;
+`;
+
 export const SpanRed = styled.span`
     display: flex;
     font-size: 14px;
