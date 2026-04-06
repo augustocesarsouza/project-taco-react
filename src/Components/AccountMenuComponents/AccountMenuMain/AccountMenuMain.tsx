@@ -43,6 +43,7 @@ const AccountMenuMain = () => {
   }
 
   useEffect(() => {
+    console.log("<<<|>>>");
       const userString = localStorage.getItem("userLogin");
       if(userString){
           const user = JSON.parse(userString);
@@ -100,7 +101,7 @@ const AccountMenuMain = () => {
 
         </Styled.Sidebar>
 
-        <Outlet />
+        <Outlet context={{ setActiveWhich, nav }}/>
 
       </Styled.Layout>
 
