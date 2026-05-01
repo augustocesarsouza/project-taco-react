@@ -176,15 +176,19 @@ const ProfileMain = () => {
         if (resp.status === 200) {
             const json = await resp.json();
             const data = json.data;
+            let dataBR = "";
 
-            const [year, month, day] = data.dateOfBirth.split("-");
-            const dataBR = `${day}/${month}/${year}`;
+            if(data.dateOfBirth){
+                const [year, month, day] = data.dateOfBirth.split("-");
+                dataBR = `${day}/${month}/${year}`;
+            }
 
             const obj = {id: data.id, email: data.email, firstName: data.name, lastName: data.lastName,  
                 cpf: data.cpf,  gender: data.gender, cellPhone: data.telephone,  birthDate: dataBR};
             
             setBirthDate(obj.birthDate);
             setCpf(data.cpf);
+
             setForm(obj);
             setLoadInfoUser(true);
             // inserir  nos "Dados pessoais"

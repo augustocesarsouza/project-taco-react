@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Styled from './styled';
 import SvgArrow from '../../../SvgAll/SvgArrow/SvgArrow';
 import { useOutletContext } from "react-router-dom";
+import { Url } from '../../../../Utils/Url';
+import { apiFetch } from '../../../../Api/apiFetch';
 
 type ContextType = {
   setActiveWhich: (value: number) => void;
@@ -24,6 +26,34 @@ const AddressesMain = () => {
         nav("/account/profile");
         setActiveWhich(0);
     }
+
+    useEffect(() => {
+        const userString = localStorage.getItem("userLogin");
+        if(userString){
+            const user = JSON.parse(userString);
+            checkIfUserHaveAddress(user);
+        }
+    }, [])
+
+    const checkIfUserHaveAddress = async (user: any) => {
+        const obj = {
+            headers: {
+                Authorization: `Bearer ${user.token}`,
+                uid: user.id ?? '',
+                'Content-Type': 'application/json',
+            }
+        };
+
+        const resp = await apiFetch(`${Url}/address/get-info-address-by-user-id/${user.id}`, obj);
+
+        if (resp.status === 200) {
+            const json = await resp.json();
+            const data = json.data;
+            console.log(data);
+        }
+    }
+
+    
 
     return (
         <Styled.Container>
